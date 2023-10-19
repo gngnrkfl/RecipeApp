@@ -49,7 +49,7 @@ public class IngredientService {
 
 		// 테이블에서 id에 해당하는 데이타셋을 가져온다.
 		final Optional<IngredientEntity> original = repository.findById(entity.getId());
-
+		System.out.println(original);
 		// original에 담겨진 내용을 todo에 할당하고 title, done 값을 변경한다.
 		original.ifPresent(ingredient -> {
 			ingredient.setIngrcount(entity.getIngrcount());

@@ -9,7 +9,7 @@ const IngredientList = (props) => {
     }
 
     function editEventHandler() {
-        props.edit("재료수정")
+        props.edit("재료수정", items.item)
     }
 
     return (

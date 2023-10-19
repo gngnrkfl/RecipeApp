@@ -9,9 +9,11 @@ import './bootstrap.css';
 const Ingredient = () => {
     const [startDate, setStartDate] = useState(new Date());
     const [items, setItems] = useState([]);
+    const [editItem, setEditItems] = useState([]);
     const [edit, setEdit] = useState("재료추가");
 
     function deleteList(item) {
+        console.log(item);
         call("/ingredient", "DELETE", item).then((response) =>
             setItems(response.data)
         );
@@ -24,8 +26,15 @@ const Ingredient = () => {
         );
     }
 
-    function edit_f(edit_trigger) {
+    function edit_f(edit_trigger, item) {
         setEdit(edit_trigger);
+        setEditItems(item);
+        let date = new Date(item.usebydate);
+        setStartDate(date);
+        let ingr = document.querySelector("#Inputname");
+        ingr.value = item.ingredient;
+        let ingrcount = document.querySelector("#InputCount");
+        ingrcount.value = item.ingrcount;
     }
 
     function cancel() {
@@ -33,6 +42,7 @@ const Ingredient = () => {
     }
 
     const handleSubmit = e => {
+        // e.preventDefault();
         const data = new FormData(e.target);
         const name = data.get("name");
         const count = data.get("count");
@@ -41,8 +51,12 @@ const Ingredient = () => {
         const ingredient = ({ ingredient: name, ingrcount: count, usebydate: date });
         if (edit === "재료추가")
             call("/ingredient", "POST", ingredient);
-        else if (edit === "재료수정")
-            update(ingredient);
+        else if (edit === "재료수정"){
+            editItem.ingredient = name;
+            editItem.ingrcount = count;
+            editItem.usebydate = date;
+            update(editItem);
+        }
     }
 
     useEffect(() => { // 새로고침
@@ -93,7 +107,7 @@ const Ingredient = () => {
                             <input
                                 type="text"
                                 class="form-control w-100"
-                                id="exampleInputPassword1"
+                                id="Inputname"
                                 placeholder="이름"
                                 autocomplete="off"
                                 name="name" />
@@ -103,14 +117,14 @@ const Ingredient = () => {
                             <input
                                 type="text"
                                 class="form-control w-100"
-                                id="exampleInputPassword1"
+                                id="InputCount"
                                 placeholder="개수"
                                 autocomplete="off"
                                 name="count" />
                         </div>
                         <div class="form-group" style={{ width: 100 }}>
                             <label for="exampleInputPassword1" class="form-label mt-4">유통기한</label>
-                            <DatePicker selected={startDate} onChange={date => setStartDate(date)} name="date" />
+                            <DatePicker id="date" selected={startDate} onChange={date => setStartDate(date)} name="date" />
                         </div>
                         <button type="submit" class="btn btn-primary mt-3 me-2">Submit</button>
                         <button type="button" class="btn btn-primary mt-3" onClick={cancel}>Cancel</button>

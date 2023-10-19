@@ -41,6 +41,34 @@ export function call(api, method, request) {
         });
 }
 
+export function recipeCall(api, method, request){
+    let headers = new Headers({
+        "Content-Type": "application/json",
+    });
+    let options = {
+        headers: headers,
+        url: API_BASE_URL + api,
+        method: method,
+    };
+    if (request) {
+        options.body = JSON.stringify(request);
+    }
+    fetch(options.url, options)
+        .then((response) =>
+            response.json().then((json) => {
+                if (!response.ok) {
+                    return Promise.reject(json);
+                }
+                return json;
+            })
+        )
+        .catch((error) => {
+            console.log("Oops!");
+            console.log(error.status);
+            console.log("Ooops!");
+        });
+}
+
 // 로그인을 위한 API 서비스 메소드 signin
 export function signin(userDTO) {
     return call("/auth/signin", "POST", userDTO).then((res) => {
