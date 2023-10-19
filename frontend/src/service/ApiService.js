@@ -33,7 +33,9 @@ export function call(api, method, request) {
             console.log(error.status);
             console.log("Ooops!");
             if (error.status === 403) {
-                window.location.href = "/login";
+                window.location.href = "/";
+            } else {
+                alert("입력 정보가 틀렸습니다.");
             }
             return Promise.reject(error);
         });
@@ -69,13 +71,6 @@ export function signup(userDTO) {
     });
 }
 
-// 로그아웃
-export function logout() {
-    // local 스토리지에 토큰 삭제
-    localStorage.setItem(ACCESS_TOKEN, null);
-    window.location.href = "/";
-}
-
 export function edituser() { // 정보수정으로 이동
     window.location.href = "/edituser";
 }
@@ -83,7 +78,15 @@ export function edituser() { // 정보수정으로 이동
 export function edit(userDTO) {
     return call("/auth/edit", "POST", userDTO).then((res) => {
         if (res.id) {
-            window.location.href = "/login";
+            window.location.href = "/";
+        }
+    });
+}
+
+export function remove(userDTO) {
+    return call("/auth/remove", "POST", userDTO).then((res) => {
+        if (res.id) {
+            window.location.href = "/logout";
         }
     });
 }

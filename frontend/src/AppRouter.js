@@ -5,6 +5,9 @@ import App from "./App";
 import './bootstrap.css';
 import Login from "./Login";
 import SignUp from "./SignUp";
+import Logout from "./Logout";
+import Ingredient from "./Ingredient";
+import EditUser from "./EditUser";
 
 const AppRouter = () => {
     return (
@@ -13,7 +16,10 @@ const AppRouter = () => {
                 <Routes>
                     <Route path="/" element={<App />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/logout" element={<Logout />} />
+                    <Route path="/edituser" element={<EditUser/>}/>
                     <Route path="/signup" element={<SignUp />} />
+                    <Route path="/ingredient" element={<Ingredient />} />
                 </Routes>
             </div>
         </BrowserRouter>

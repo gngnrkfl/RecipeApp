@@ -38,4 +38,20 @@ public class UserService {
 		}
 		return null;
 	}
+	
+	public UserEntity getUserEntity(final String email) {
+		return userRepository.findByEmail(email);
+	}
+	
+	public UserEntity getUserEntitybyps(final String password) {
+		return userRepository.findByPassword(password);
+	}
+	
+	public void userEdit(final UserEntity userEntity) {
+		userRepository.save(userEntity);
+	}
+	
+	public void userRemove(final UserEntity userEntity) {
+		userRepository.delete(userEntity);
+	}
 }

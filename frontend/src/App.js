@@ -1,11 +1,13 @@
 import { Button, Card } from 'react-bootstrap';
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './bootstrap.css';
-import { logout } from './service/ApiService';
 
 function App() {
     const [recipe, setRecipe] = useState([{ title: "김치찌개", text: "맛있는 김치찌개" }, { title: "된장찌개", text: "맛있는 된장찌개" }, { title: "된장찌개", text: "맛있는 된장찌개" }, { title: "된장찌개", text: "맛있는 된장찌개" }]);
+    var ingredient = (<a href='/'></a>);
+    var login = (<a href='/'></a>);
+    var editUser = (<a href='/'></a>);
 
     var recipeItems = recipe.length > 0 && (
         recipe.map((item, idx) => (
@@ -21,25 +23,16 @@ function App() {
             </Card>
         ))
     );
-    
-    function Login() {
-        if(localStorage.getItem("ACCESS_TOKEN") !== "null"){
-            logout();
-        } else {
-            window.location.href = "/login";
-        }
+
+    if (localStorage.getItem("ACCESS_TOKEN") === "null") {
+        ingredient = null;
+        login = (<a class="nav-link" href="/login">로그인</a>);
+        editUser = null;
+    } else {
+        ingredient = (<a class="nav-link" href="/ingredient">재료관리</a>);
+        login = (<a class="nav-link" href="/logout">로그아웃</a>);
+        editUser = (<a class="nav-link" href="/edituser">정보수정</a>)
     }
-
-    useEffect(() => { // 새로고침 
-        console.log("새로고침")
-        var login = document.querySelector("#loginBtn")
-        if(localStorage.getItem("ACCESS_TOKEN") === "null") {
-            login.innerHTML = 'login';
-        } else {
-            login.innerHTML = 'logout';
-        }
-    }, []);
-
 
     return (
         <div>
@@ -48,8 +41,14 @@ function App() {
                     <a class="navbar-brand" href="/" style={{ marginLeft: 300 }}>Recipe App</a>
                 </div>
                 <ul class="navbar-nav" style={{ marginRight: 300 }}>
-                    <li class="nav-item">
-                        <button class="btn btn-primary" type="button" id='loginBtn' onClick={Login}>Login</button>
+                    <li class="nav-item" style={{ width: 100, textAlign: 'center' }}>
+                        {editUser}
+                    </li>
+                    <li class="nav-item" style={{ width: 100, textAlign: 'center' }}>
+                        {ingredient}
+                    </li>
+                    <li class="nav-item" style={{ width: 100, textAlign: 'center' }}>
+                        {login}
                     </li>
                 </ul>
             </nav>

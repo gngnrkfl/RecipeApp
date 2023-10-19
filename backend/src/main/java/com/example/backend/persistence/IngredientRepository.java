@@ -1,0 +1,15 @@
+package com.example.backend.persistence;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import com.example.backend.model.IngredientEntity;
+
+@Repository
+public interface IngredientRepository extends JpaRepository<IngredientEntity, String>{
+	@Query("select t from IngredientEntity t where t.userId = ?1")
+	List<IngredientEntity>findByUserId(String userId);
+}
