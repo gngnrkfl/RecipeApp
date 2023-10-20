@@ -171,11 +171,16 @@ public class RecipeController {
 			JSONArray ingredientArray = (JSONArray) jsonObj.get("recipeIngredient");
 			ingredientList.add(ingredientArray.toJSONString());
 			JSONArray recipeArray = (JSONArray) jsonObj.get("recipeInstructions");
-			for (int j = 0; j < recipeArray.size(); j++) {
-				JSONObject recipeObject = (JSONObject) recipeArray.get(j);
-				JSONRecipeList.add(recipeObject.get("text"));
+			if (recipeArray == null) {
+				JSONRecipeList.add("[\"관련정보가 없습니다.\"]");
+				recipeList.add(JSONRecipeList.toJSONString());
+			} else {
+				for (int j = 0; j < recipeArray.size(); j++) {
+					JSONObject recipeObject = (JSONObject) recipeArray.get(j);
+					JSONRecipeList.add(recipeObject.get("text"));
+				}
+				recipeList.add(JSONRecipeList.toJSONString());
 			}
-			recipeList.add(JSONRecipeList.toJSONString());
 		}
 		
 		List<RecipeDTO> responseRecipeDTOList = new ArrayList<>();
@@ -202,6 +207,14 @@ public class RecipeController {
 	
 	@PostMapping
 	public ResponseEntity<?> searchRecipe(@RequestBody RecipeDTO RecipeDTO) throws ParseException {
+		List<RecipeDTO> recipe = new ArrayList<>();
+		recipe = Crawling(RecipeDTO.getName());
+		
+		return ResponseEntity.ok().body(recipe);
+	}
+	
+	@PostMapping("/category")
+	public ResponseEntity<?> categoryRecipe(@RequestBody RecipeDTO RecipeDTO) throws ParseException {
 		List<RecipeDTO> recipe = new ArrayList<>();
 		recipe = Crawling(RecipeDTO.getName());
 		

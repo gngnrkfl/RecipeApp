@@ -51,7 +51,7 @@ export function recipeCall(api, method, request){
     if (request) {
         options.body = JSON.stringify(request);
     }
-    fetch(options.url, options)
+    return fetch(options.url, options)
         .then((response) =>
             response.json().then((json) => {
                 if (!response.ok) {

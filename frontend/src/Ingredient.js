@@ -79,7 +79,7 @@ const Ingredient = () => {
                 </thead>
                 <tbody>
                     {items.map((item, idx) => (
-                        <IngredientList item={item} key={item.id} delete={deleteList} update={update} edit={edit_f} />
+                        <IngredientList item={item} key={item.id} delete={deleteList} update={update} edit={edit_f}/>
                     ))}
                 </tbody>
             </table>
