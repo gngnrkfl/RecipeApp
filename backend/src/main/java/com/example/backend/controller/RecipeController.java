@@ -53,22 +53,20 @@ public class RecipeController {
 
 		driver = new ChromeDriver(options);
 	}
-
-	public static List<RecipeDTO> Crawling() throws ParseException {
-		Driver();
-
-		url = "https://www.10000recipe.com/recipe/list.html";
-		driver.get(url);
-		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
-		
+	
+	public static List<String> getImageUrl() {
 		List<WebElement> elementImage;  // 이미지 URL
 		elementImage = driver.findElements(
 				By.cssSelector("#contents_area_full > ul > ul > li:nth-child(-n+8) > div.common_sp_thumb > a > img"));
-		List<String> imageUrl = new ArrayList<>(); //URL이 담긴 리스트
+		List<String> imageUrl = new ArrayList<>(); // 이미지 URL이 담긴 리스트
 		for (int i = 0; i < elementImage.size(); i++) {
 			imageUrl.add(elementImage.get(i).getAttribute("src"));
 		}
 		
+		return imageUrl;
+	}
+	
+	public static List<String> getNameList() {
 		List<WebElement> elementName;  // 요리 이름
 		elementName = driver.findElements
 				(By.cssSelector("#contents_area_full > ul > ul > li:nth-child(-n+8) > div.common_sp_caption > div.common_sp_caption_tit.line2"));
@@ -77,6 +75,22 @@ public class RecipeController {
 			nameList.add(elementName.get(i).getAttribute("innerText"));
 		}
 		
+		return nameList;
+	}
+
+	public static List<RecipeDTO> Crawling() throws ParseException {
+		Driver();
+
+		url = "https://www.10000recipe.com/recipe/list.html";
+		driver.get(url);
+		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+		
+		List<String> imageUrl = new ArrayList<>(); // 이미지 URL이 담긴 리스트
+		imageUrl = getImageUrl();
+
+		List<String> nameList = new ArrayList<>(); // 요리가 담긴 리스트
+		nameList = getNameList();
+
 		List<WebElement> element;
 		element = driver.findElements(By.xpath("//*[@id=\"contents_area_full\"]/ul/ul/li/div/a"));
 		List<String> ingredientList = new ArrayList<>(); // 재료 리스트
@@ -130,21 +144,75 @@ public class RecipeController {
 		driver.get(url);
 		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
 		
-		List<WebElement> elementImage;  // 이미지 URL
-		elementImage = driver.findElements(
-				By.cssSelector("#contents_area_full > ul > ul > li:nth-child(-n+8) > div.common_sp_thumb > a > img"));
-		List<String> imageUrl = new ArrayList<>(); //URL이 담긴 리스트
-		for (int i = 0; i < elementImage.size(); i++) {
-			imageUrl.add(elementImage.get(i).getAttribute("src"));
+		List<String> imageUrl = new ArrayList<>(); // 이미지 URL이 담긴 리스트
+		imageUrl = getImageUrl();
+
+		List<String> nameList = new ArrayList<>(); // 요리가 담긴 리스트
+		nameList = getNameList();
+		
+		List<WebElement> element;
+		element = driver.findElements(By.xpath("//*[@id=\"contents_area_full\"]/ul/ul/li/div/a"));
+		List<String> ingredientList = new ArrayList<>(); // 재료 리스트
+		JSONArray JSONRecipeList = new JSONArray();
+		List<String> recipeList = new ArrayList<>(); // 레시피 리스트
+		String[] href = null;
+		List<String> urlList = new ArrayList<>();
+		
+		for (int i = 0; i < 8; i++) {
+			href = element.get(i).getAttribute("href").split("/");
+			urlList.add("https://www.10000recipe.com/recipe/" + href[href.length - 1]);
+		}
+		for (int i = 0; i < 8; i++) {
+			driver.get(urlList.get(i));
+			driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+			WebElement elementRecipe;
+			elementRecipe = driver.findElement(By.xpath("//script[@type='application/ld+json']"));
+
+			String recipe = elementRecipe.getAttribute("innerText");
+			JSONParser jsonParser = new JSONParser();
+			JSONObject jsonObj = (JSONObject) jsonParser.parse(recipe);
+
+			JSONArray ingredientArray = (JSONArray) jsonObj.get("recipeIngredient");
+			ingredientList.add(ingredientArray.toJSONString());
+			JSONArray recipeArray = (JSONArray) jsonObj.get("recipeInstructions");
+			if (recipeArray == null) {
+				JSONRecipeList.add("[\"관련정보가 없습니다.\"]");
+				recipeList.add(JSONRecipeList.toJSONString());
+			} else {
+				for (int j = 0; j < recipeArray.size(); j++) {
+					JSONObject recipeObject = (JSONObject) recipeArray.get(j);
+					JSONRecipeList.add(recipeObject.get("text"));
+				}
+				recipeList.add(JSONRecipeList.toJSONString());
+			}
 		}
 		
-		List<WebElement> elementName;  // 요리 이름
-		elementName = driver.findElements
-				(By.cssSelector("#contents_area_full > ul > ul > li:nth-child(-n+8) > div.common_sp_caption > div.common_sp_caption_tit.line2"));
-		List<String> nameList = new ArrayList<>(); //요리가 담긴 리스트
-		for (int i = 0; i < elementName.size(); i++) {
-			nameList.add(elementName.get(i).getAttribute("innerText"));
+		List<RecipeDTO> responseRecipeDTOList = new ArrayList<>();
+		for(int i = 0; i < 8; i++) {
+			final RecipeDTO responseRecipeDTO = RecipeDTO.builder()
+					.imageUrl(imageUrl.get(i))
+					.name(nameList.get(i))
+					.ingredient(ingredientList.get(i))
+					.recipe(recipeList.get(i))
+					.build();
+			responseRecipeDTOList.add(responseRecipeDTO);
 		}
+		
+		return responseRecipeDTOList;
+	}
+	
+	public static List<RecipeDTO> categoryCrawling(String number) throws ParseException {
+		Driver();
+
+		url = "https://www.10000recipe.com/recipe/list.html?q=&query=&cat1=&cat2=&cat3=&cat4="+number+"&fct=&order=reco&lastcate=cat4&dsearch=&copyshot=&scrap=&degree=&portion=&time=&niresource=";
+		driver.get(url);
+		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+		
+		List<String> imageUrl = new ArrayList<>(); // 이미지 URL이 담긴 리스트
+		imageUrl = getImageUrl();
+
+		List<String> nameList = new ArrayList<>(); // 요리가 담긴 리스트
+		nameList = getNameList();
 		
 		List<WebElement> element;
 		element = driver.findElements(By.xpath("//*[@id=\"contents_area_full\"]/ul/ul/li/div/a"));
@@ -216,7 +284,7 @@ public class RecipeController {
 	@PostMapping("/category")
 	public ResponseEntity<?> categoryRecipe(@RequestBody RecipeDTO RecipeDTO) throws ParseException {
 		List<RecipeDTO> recipe = new ArrayList<>();
-		recipe = Crawling(RecipeDTO.getName());
+		recipe = categoryCrawling(RecipeDTO.getName());
 		
 		return ResponseEntity.ok().body(recipe);
 	}

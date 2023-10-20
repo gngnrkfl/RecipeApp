@@ -29,16 +29,16 @@ import org.springframework.web.cors.CorsConfiguration;
 public class WebSecurityConfig {
 
 	private final ObjectMapper objectMapper;
-	
-    @Autowired
-    public WebSecurityConfig(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
-	
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-   
-    @Bean
+
+	@Autowired
+	public WebSecurityConfig(ObjectMapper objectMapper) {
+		this.objectMapper = objectMapper;
+	}
+
+	@Autowired
+	private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+	@Bean
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
     	 http.csrf(AbstractHttpConfigurer::disable);
          http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
@@ -51,7 +51,8 @@ public class WebSecurityConfig {
                          .requestMatchers(
                                  new AntPathRequestMatcher("/"),
                                  new AntPathRequestMatcher("/auth/**"),
-                                 new AntPathRequestMatcher("/h2-console/**"))
+                                 new AntPathRequestMatcher("/h2-console/**"),
+                                 new AntPathRequestMatcher("/category"))
                          .permitAll();
              } catch (Exception e) {
                  e.printStackTrace();
@@ -81,21 +82,22 @@ public class WebSecurityConfig {
 
          return http.build();
     }
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        final long MAX_AGE_SECS = 3600;
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.addAllowedOriginPattern("*");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("GET");
-        config.addAllowedMethod("POST");
-        config.addAllowedMethod("PUT");
-        config.addAllowedMethod("DELETE");
-        config.addAllowedMethod("OPTIONS");
-        config.setMaxAge(MAX_AGE_SECS);
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		final long MAX_AGE_SECS = 3600;
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowCredentials(true);
+		config.addAllowedOriginPattern("*");
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("GET");
+		config.addAllowedMethod("POST");
+		config.addAllowedMethod("PUT");
+		config.addAllowedMethod("DELETE");
+		config.addAllowedMethod("OPTIONS");
+		config.setMaxAge(MAX_AGE_SECS);
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
 }

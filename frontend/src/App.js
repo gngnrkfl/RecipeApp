@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import './bootstrap.css';
 import { call, recipeCall } from './service/ApiService';
 import Recipe from './Recipe';
+import { BounceLoader, ClipLoader } from 'react-spinners';
 
 function App() {
     const [recipe, setRecipe] = useState([]);
@@ -27,11 +28,11 @@ function App() {
     function onButtonClick() {
         setIsLoading(true);
         var item = { name: searchItem }
-        recipeCall("/", "POST", item).then((response) => {
-            setIsLoading(false)
-            setRecipe(response)
-        }
-        );
+        recipeCall("/", "POST", item)
+            .then((response) => {
+                setIsLoading(false)
+                setRecipe(response)
+            });
         setSearchItem("");
     }
 
@@ -41,8 +42,34 @@ function App() {
         }
     }
 
+    function recipecall(item) {
+        let num = { name: item }
+        console.log(num);
+        recipeCall("/category", "POST", num)
+            .then((response) => {
+                setIsLoading(false);
+                setRecipe(response);
+            })
+            .catch((error) => {
+                console.error("API 요청 실패:", error);
+            });
+    }
+
     function handleClick(category) {
-        
+        setIsLoading(true);
+        if (category === '전체') {
+            call("/", "GET", null).then((response) => {
+                setRecipe(response);
+                setIsLoading(false);
+            });
+        }
+        else if (category === '밑반찬') { recipecall('63') }
+        else if (category === '메인반찬') { recipecall('56') }
+        else if (category === '국/탕') { recipecall('54') }
+        else if (category === '찌개') { recipecall('55') }
+        else if (category === '면/만두') { recipecall('53') }
+        else if (category === '밥/죽/떡') { recipecall('52') }
+        else if (category === '김치/젓갈/장류') { recipecall('57') }
     }
 
     var recipeItems = recipe && recipe.length > 0 && (
@@ -61,7 +88,15 @@ function App() {
         ))
     );
 
-    var Loading = (<div><h1>로딩중</h1></div>);
+    var Loading = (
+        <div className="loading-screen" style={{display:'flex', justifyContent:"center",alignItems:"center", marginTop:100}}>
+        <div className="loader-container" style={{textAlign:'center'}}>
+            {/* 스피너 스타일과 색상을 설정할 수 있습니다. */}
+            <BounceLoader size={50} color={'#3498db'} loading={true} />
+            <p>Loading...</p>
+        </div>
+    </div>
+    );
 
     if (localStorage.getItem("ACCESS_TOKEN") === "null") {
         ingredient = null;
@@ -131,14 +166,14 @@ function App() {
                         onClick={onButtonClick}>검색</button>
                 </div>
                 <div style={{ textAlign: 'center', marginTop: 10 }}>
-                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => this.handleClick('전체')}>전체</button>
-                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => this.handleClick('밑반찬')}>밑반찬</button>
-                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => this.handleClick('메인반찬')}>메인반찬</button>
-                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => this.handleClick('국/탕')}>국/탕</button>
-                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => this.handleClick('찌개')}>찌개</button>
-                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => this.handleClick('면/만두')}>면/만두</button>
-                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => this.handleClick('밥/죽/떡')}>밥/죽/떡</button>
-                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => this.handleClick('김치/젓갈/장류')}>김치/젓갈/장류</button>
+                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => handleClick('전체')}>전체</button>
+                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => handleClick('밑반찬')}>밑반찬</button>
+                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => handleClick('메인반찬')}>메인반찬</button>
+                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => handleClick('국/탕')}>국/탕</button>
+                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => handleClick('찌개')}>찌개</button>
+                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => handleClick('면/만두')}>면/만두</button>
+                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => handleClick('밥/죽/떡')}>밥/죽/떡</button>
+                    <button class="btn btn-info" style={{ margin: '5px' }} onClick={() => handleClick('김치/젓갈/장류')}>김치/젓갈/장류</button>
                 </div>
             </div>
             <div >
