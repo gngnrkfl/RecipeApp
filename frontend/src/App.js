@@ -3,20 +3,19 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import './bootstrap.css';
 import { call } from './service/ApiService';
+import Recipe from './Recipe';
 
 function App() {
     const [recipe, setRecipe] = useState([{}]);
     const [isLoading, setIsLoading] = useState(true); // 로딩 상태 초기값은 true로 설정
+    const [selectedRecipe, setSelectedRecipe] = useState(null); //레시피 보기 버튼을 누르면 나오는 레시피
     var ingredient = (<a href='/'></a>);
     var login = (<a href='/'></a>);
     var editUser = (<a href='/'></a>);
 
-    function openRecipe() {
-        document.getElementById("recipeModal").style.display = "block";
-    }
-
-    function closeRecipe() {
-        document.getElementById("recipeModal").style.display = "none";
+    function openRecipe(idx) {
+        setSelectedRecipe(recipe[idx]);
+        document.getElementById("recipeModal").style.display = 'block';
     }
 
     var recipeItems = recipe.length > 0 && (
@@ -28,33 +27,14 @@ function App() {
                         <Card.Title>{item.name}</Card.Title>
                     </Card.Body>
                     <CardFooter>
-                        <Button variant="primary" onClick={openRecipe}>레시피 보기</Button>
+                        <Button variant="primary" onClick={() => openRecipe(idx)}>레시피 보기</Button>
                     </CardFooter>
                 </Card>
-                <div class="modal" id="recipeModal">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">{item.name}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true"></span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <p>재료 : </p>
-                                {/* 레시피 보기 버튼 마저 완성 */}
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onClick={closeRecipe}>Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         ))
     );
 
-    var Loding = (<div><h1>로딩중</h1></div>);
+    var Loading = (<div><h1>로딩중</h1></div>);
 
     if (localStorage.getItem("ACCESS_TOKEN") === "null") {
         ingredient = null;
@@ -68,7 +48,6 @@ function App() {
 
     useEffect(() => { // 새로고침
         call("/", "GET", null).then((response) => {
-            console.log(response);
             setRecipe(response);
             setIsLoading(false);
         });
@@ -100,9 +79,10 @@ function App() {
             </div>
             <div >
                 <div style={{ width: 1300 }} className="m-auto d-flex col-lg-10 col-md-12 row p-3">
-                    {isLoading ? Loding : recipeItems}
+                    {isLoading ? Loading : recipeItems}
                 </div>
             </div>
+            <Recipe selectedRecipe={selectedRecipe}/>
         </div>
     );
 }

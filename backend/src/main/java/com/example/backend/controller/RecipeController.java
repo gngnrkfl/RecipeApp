@@ -21,6 +21,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -121,32 +123,87 @@ public class RecipeController {
 		return responseRecipeDTOList;
 	}
 
-	public static void Crawling(String name) {
+	public static List<RecipeDTO> Crawling(String name) throws ParseException {
 		Driver();
-
-		url = "https://www.10000recipe.com/recipe/list.html";
-		driver.get(url);
-		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
-		List<WebElement> elementImage;
-		elementImage = driver.findElements(
-				By.cssSelector("#contents_area_full > ul > ul > li:nth-child(-n+8) > div.common_sp_thumb > a > img"));
-		List<String> imageUrl = new ArrayList<>();
-		for (int i = 0; i < elementImage.size(); i++) {
-			imageUrl.add(elementImage.get(i).getAttribute("src"));
-		}
 
 		url = "https://www.10000recipe.com/recipe/list.html?q=" + name;
 		driver.get(url);
+		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+		
+		List<WebElement> elementImage;  // 이미지 URL
+		elementImage = driver.findElements(
+				By.cssSelector("#contents_area_full > ul > ul > li:nth-child(-n+8) > div.common_sp_thumb > a > img"));
+		List<String> imageUrl = new ArrayList<>(); //URL이 담긴 리스트
+		for (int i = 0; i < elementImage.size(); i++) {
+			imageUrl.add(elementImage.get(i).getAttribute("src"));
+		}
+		
+		List<WebElement> elementName;  // 요리 이름
+		elementName = driver.findElements
+				(By.cssSelector("#contents_area_full > ul > ul > li:nth-child(-n+8) > div.common_sp_caption > div.common_sp_caption_tit.line2"));
+		List<String> nameList = new ArrayList<>(); //요리가 담긴 리스트
+		for (int i = 0; i < elementName.size(); i++) {
+			nameList.add(elementName.get(i).getAttribute("innerText"));
+		}
+		
 		List<WebElement> element;
 		element = driver.findElements(By.xpath("//*[@id=\"contents_area_full\"]/ul/ul/li/div/a"));
-		String[] href = element.get(0).getAttribute("href").split("/");
-		url = "https://www.10000recipe.com/recipe/" + href[href.length - 1];
+		List<String> ingredientList = new ArrayList<>(); // 재료 리스트
+		JSONArray JSONRecipeList = new JSONArray();
+		List<String> recipeList = new ArrayList<>(); // 레시피 리스트
+		String[] href = null;
+		List<String> urlList = new ArrayList<>();
+		
+		for (int i = 0; i < 8; i++) {
+			href = element.get(i).getAttribute("href").split("/");
+			urlList.add("https://www.10000recipe.com/recipe/" + href[href.length - 1]);
+		}
+		for (int i = 0; i < 8; i++) {
+			driver.get(urlList.get(i));
+			driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+			WebElement elementRecipe;
+			elementRecipe = driver.findElement(By.xpath("//script[@type='application/ld+json']"));
+
+			String recipe = elementRecipe.getAttribute("innerText");
+			JSONParser jsonParser = new JSONParser();
+			JSONObject jsonObj = (JSONObject) jsonParser.parse(recipe);
+
+			JSONArray ingredientArray = (JSONArray) jsonObj.get("recipeIngredient");
+			ingredientList.add(ingredientArray.toJSONString());
+			JSONArray recipeArray = (JSONArray) jsonObj.get("recipeInstructions");
+			for (int j = 0; j < recipeArray.size(); j++) {
+				JSONObject recipeObject = (JSONObject) recipeArray.get(j);
+				JSONRecipeList.add(recipeObject.get("text"));
+			}
+			recipeList.add(JSONRecipeList.toJSONString());
+		}
+		
+		List<RecipeDTO> responseRecipeDTOList = new ArrayList<>();
+		for(int i = 0; i < 8; i++) {
+			final RecipeDTO responseRecipeDTO = RecipeDTO.builder()
+					.imageUrl(imageUrl.get(i))
+					.name(nameList.get(i))
+					.ingredient(ingredientList.get(i))
+					.recipe(recipeList.get(i))
+					.build();
+			responseRecipeDTOList.add(responseRecipeDTO);
+		}
+		
+		return responseRecipeDTOList;
 	}
 
 	@GetMapping
 	public ResponseEntity<?> recipeList() throws ParseException {
 		List<RecipeDTO> recipe = new ArrayList<>();
 		recipe = Crawling();
+		
+		return ResponseEntity.ok().body(recipe);
+	}
+	
+	@PostMapping
+	public ResponseEntity<?> searchRecipe(@RequestBody RecipeDTO RecipeDTO) throws ParseException {
+		List<RecipeDTO> recipe = new ArrayList<>();
+		recipe = Crawling(RecipeDTO.getName());
 		
 		return ResponseEntity.ok().body(recipe);
 	}

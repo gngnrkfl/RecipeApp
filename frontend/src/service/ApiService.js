@@ -34,8 +34,6 @@ export function call(api, method, request) {
             console.log("Ooops!");
             if (error.status === 403) {
                 window.location.href = "/";
-            } else {
-                alert("입력 정보가 틀렸습니다.");
             }
             return Promise.reject(error);
         });
