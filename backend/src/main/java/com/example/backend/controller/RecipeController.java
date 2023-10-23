@@ -1,14 +1,8 @@
 package com.example.backend.controller;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.dto.RecipeDTO;
-import com.example.backend.dto.UserDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,7 +76,7 @@ public class RecipeController {
 
 		url = "https://www.10000recipe.com/recipe/list.html";
 		driver.get(url);
-		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 		
 		List<String> imageUrl = new ArrayList<>(); // 이미지 URL이 담긴 리스트
 		imageUrl = getImageUrl();
@@ -105,7 +98,7 @@ public class RecipeController {
 		}
 		for (int i = 0; i < 8; i++) {
 			driver.get(urlList.get(i));
-			driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+			driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 			WebElement elementRecipe;
 			elementRecipe = driver.findElement(By.xpath("//script[@type='application/ld+json']"));
 
@@ -142,7 +135,7 @@ public class RecipeController {
 
 		url = "https://www.10000recipe.com/recipe/list.html?q=" + name;
 		driver.get(url);
-		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 		
 		List<String> imageUrl = new ArrayList<>(); // 이미지 URL이 담긴 리스트
 		imageUrl = getImageUrl();
@@ -164,7 +157,7 @@ public class RecipeController {
 		}
 		for (int i = 0; i < 8; i++) {
 			driver.get(urlList.get(i));
-			driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+			driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 			WebElement elementRecipe;
 			elementRecipe = driver.findElement(By.xpath("//script[@type='application/ld+json']"));
 
@@ -206,7 +199,7 @@ public class RecipeController {
 
 		url = "https://www.10000recipe.com/recipe/list.html?q=&query=&cat1=&cat2=&cat3=&cat4="+number+"&fct=&order=reco&lastcate=cat4&dsearch=&copyshot=&scrap=&degree=&portion=&time=&niresource=";
 		driver.get(url);
-		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+		driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 		
 		List<String> imageUrl = new ArrayList<>(); // 이미지 URL이 담긴 리스트
 		imageUrl = getImageUrl();
@@ -228,7 +221,7 @@ public class RecipeController {
 		}
 		for (int i = 0; i < 8; i++) {
 			driver.get(urlList.get(i));
-			driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000));
+			driver.manage().timeouts().implicitlyWait(Duration.ofMillis(500));
 			WebElement elementRecipe;
 			elementRecipe = driver.findElement(By.xpath("//script[@type='application/ld+json']"));
 

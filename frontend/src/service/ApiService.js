@@ -30,7 +30,7 @@ export function call(api, method, request) {
         )
         .catch((error) => {
             console.log("Oops!");
-            console.log(error.status);
+            console.log(error.error);
             console.log("Ooops!");
             if (error.status === 403) {
                 window.location.href = "/";
@@ -76,6 +76,13 @@ export function signin(userDTO) {
             // token이 존재하는 경우 todo 화면으로 리디렉트
             window.location.href = "/";
         }
+    }).catch((err) => {
+        console.log("Oops!");
+        console.log(err.error);
+        console.log("Ooops!")
+        if (err.error === "Login failed") {
+            alert("이메일 혹은 비밀번호가 틀렸습니다.");
+        }
     });
 }
 
@@ -88,7 +95,7 @@ export function signup(userDTO) {
         }
     }).catch((err) => {
         console.log("Oops!");
-        console.log(err.status);
+        console.log(err.error);
         console.log("Ooops!")
         if (err.status === 403) {
             window.location.href = "/login";
